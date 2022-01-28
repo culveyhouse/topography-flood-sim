@@ -15,15 +15,17 @@ This simulator applies water to a 3D topographical grid, then computes the total
 * [AWS Cloud9](https://aws.amazon.com/cloud9/) - Online development IDE which uses its own EC2 server 
 * [Ubuntu 18.04.6 LTS](https://releases.ubuntu.com/18.04/) - The Linux OS on the AWS Cloud9 instance
 
-## Express Installation and Bot Initialization
+## How To Use This Project
 
 To be added 
 
-## Verbose Installation and Bot Initialization
+## Express Installation of Python environment
+
+To be added 
+
+## Verbose Installation of Python environment
 
 To be added
-
-## How To Use This Project
 
 ## Troubleshooting and Known Errors 
 
