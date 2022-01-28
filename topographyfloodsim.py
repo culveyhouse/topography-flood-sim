@@ -78,7 +78,8 @@ def prepare_grid(topo_grid = None, length = None, width = None, max_height = Non
         board_width = width or DEFAULT_WIDTH
         board_max_height = max_height or DEFAULT_MAX_HEIGHT
 
-        topo_grid = [[random.randint(0,board_max_height) for i in range(board_length)] for j in range(board_width)]
+        topo_grid = [[random.randint(0,board_max_height) 
+            for i in range(board_length)] for j in range(board_width)]
 
     else: 
         # trim rows to first row
@@ -86,22 +87,22 @@ def prepare_grid(topo_grid = None, length = None, width = None, max_height = Non
         board_width = len(topo_grid)
         board_max_height = max(map(max, topo_grid))
         
-        for y in range(len(topo_grid)):
-            if len(topo_grid[y]) < board_length:
-                topo_grid[y].extend([0 for i in range((board_length-len(topo_grid[y])))])  
-            topo_grid[y] = topo_grid[y][0:board_length]
+        # Fill incomplete rows with zeros for uniform row length
+        for y in range(board_width):
+            row = topo_grid[y]
+            if len(row) < board_length:
+                row.extend([0 for i in range((board_length-len(row)))])  
+            topo_grid[y] = row[0:board_length]
 
     return topo_grid, board_max_height
     
 def print_grid(topo_grid):
     for i in range(len(topo_grid)):
         for j in range(len(topo_grid[0])):
-            #print(topo_grid[i][j], end='|')
-            #print("{:<2}".format(topo_grid[i][j]), end="|")
             print(str(topo_grid[i][j]).rjust(3), end="|")
         print("") 
 
 if __name__ == '__main__':
-    topo_grid, board_max_height = prepare_grid(length=args.grid_length, width=args.grid_width, max_height=args.max_height)   
+    (topo_grid, board_max_height) = prepare_grid(length=args.grid_length, width=args.grid_width, max_height=args.max_height)   
     print_grid(topo_grid)
     print(board_max_height)
