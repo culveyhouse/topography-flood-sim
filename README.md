@@ -3,7 +3,7 @@
 
 ## Synopsis
 
-This simulator applies water to a 3D topographical grid, then computes the total volume of flood water that pools on that grid. Currently, the maximum allowable grid is an 8x8 "chessboard", and the current maximum height of each sector is 100 cubes. These limits may increase in future releases.  
+This simulator applies water to a 3D topographical grid, then computes the total volume of flood water that pools on that grid. Currently, the maximum allowable grid is an 8x8 "chessboard", and the current maximum height of each sector is 10 cubes. These limits may increase in future releases.  
 
 ## Built With
 

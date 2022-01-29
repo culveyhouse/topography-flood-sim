@@ -216,12 +216,14 @@ def print_grid3d(cube_grid, include_coords = False):
     print(f"Length {length}, Width {width}, Height {height}")
     for y in range(width):
         for x in range(length):
+            print("", end="|")
             for z in range(height):
                 if include_coords:
                     print("-".join([str(x).rjust(len_digits),
                         str(y).rjust(wid_digits),
                         str(z).rjust(ht_digits)]), end="x")
                 print(cube_grid[x][y][z], end='|')
+            print("", end=" ")
         print("")    
         
             
