@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env Python
 
 import sys
 import argparse
@@ -40,29 +40,74 @@ class MakeCartesianGrid:
     and 2: water.
 
     ...
-
+    Parameters
+    ----------
+    grid : 2D arr/list of lists
+        the 2D grid represented as a 2D Python array 
+    height : int
+        the height of the 3D grid
+    manual_run : bool, optional, default False
+        flag to indicate whether to automatically run the extrusion 
+    
     Attributes
     ----------
-    grid_array : the 2D grid represented as a 2D array 
+    grid : the 2D grid represented as a 2D Python array 
     length : int
         the length from the 2D grid input
     width : int
         the width from the 2D grid input
-    height : int
-        the height of the 3D grid
 
     Methods
     -------
-    extrude(self.grid_array)
-        Produces the 3D array by extruding the heights of each grid square.
+    extrude()
+        Produces a 3D array by extruding the heights of each grid square.
     """      
-    def __init__(self, grid, height):
+    
+    def __init__(self, grid, height, manual_run = False):
         self.length = len(grid[0])
         self.width = len(grid)
         self.height = height
-        self.grid = grid     
+        self.grid = grid    
+        self.cube_grid = \
+            [[[0 for z in range(self.height)] \
+            for y in range(self.width)] \
+            for x in range(self.length)] 
+        if not manual_run:
+            self.extrude()
         
+    def extrude(self, grid=None):
+        """
+        extrude() creates a 3D array representing a 3D Cartesian grid of cubes, 
+        starting with the 2D topo_grid array and extruding each square into a 
+        z-axis per the value (height) of each array element. The
+        topographical 'cubes' will have a value of 1 (board material), and all
+        other cubes will have a value of 0 (air material)
+        
+        Parameters
+        ----------
+        grid : 2D arr/list of lists, optional
+            A Python 2D array (list of lists) which can be passed to override
+            the grid_array already defined within the class init.
     
+        Returns
+        -------
+        cube_grid : 3D arr/list of list of lists
+            A fullly extruded 3d Python array, with int values of either 0 (air)
+            or 1 (board)
+        """
+        
+        if grid is None:
+            grid = self.grid
+
+        # Build the 3D grid in order of y, x, and then z axes
+        for y in range(self.width):
+            for x in range(self.length):
+                for z in range(self.height):
+                    if grid[y][x]-1>=z:
+                        self.cube_grid[x][y][z]=1
+        
+        return self.cube_grid
+
         
 def prepare_grid(topo_grid = None, length = None, width = None, max_height = None):
     """
@@ -78,8 +123,8 @@ def prepare_grid(topo_grid = None, length = None, width = None, max_height = Non
 
     Parameters
     ----------
-    topo_grid : int, optional
-        A 2d python array, square or rectangular
+    topo_grid : 2D arr/list of lists, optional
+        A 2d Python array, square or rectangular
     length : int, optional, defaults to DEFAULT_LENGTH
         Desired length of a randomized 2D grid
     width : int, optional, defaults to DEFAULT_WIDTH
@@ -89,7 +134,7 @@ def prepare_grid(topo_grid = None, length = None, width = None, max_height = Non
 
     Returns
     -------
-    (topo_grid, board_max_height) : tuple (array/list of lists, int)
+    (topo_grid, board_max_height) : tuple (2D arr/list of lists, int)
         1. The final 2D array, or in other words a groomed grid 
         for use with MakeCartesianGrid, and
         2. The maximum value detected in the 2D grid, also called
@@ -97,17 +142,21 @@ def prepare_grid(topo_grid = None, length = None, width = None, max_height = Non
     """
     
     if topo_grid is None: 
-        # Randomizing a 2D grid
-        print("Randomizing a 2D grid")
+        # randomizing a 2D grid
         board_length = length or DEFAULT_LENGTH
         board_width = width or DEFAULT_WIDTH
         board_max_height = max_height or DEFAULT_MAX_HEIGHT
+        print(f"Randomizing a 2D grid of {board_length}x{board_width} with " + 
+            f"values 0-{board_max_height}")
 
+        #Randomize values in 2D array up to maximum height calculated above
         topo_grid = [[random.randint(0,board_max_height) 
             for i in range(board_length)] for j in range(board_width)]
+        print("Your random 2D grid is:")
+        print(print_grid(topo_grid))
 
     else: 
-        # trim rows to first row
+        # base board length on the first row's length
         board_length = len(topo_grid[0])
         board_width = len(topo_grid)
         board_max_height = max(map(max, topo_grid))
@@ -117,6 +166,7 @@ def prepare_grid(topo_grid = None, length = None, width = None, max_height = Non
             row = topo_grid[y]
             if len(row) < board_length:
                 row.extend([0 for i in range((board_length-len(row)))])  
+            # trim longer rows to first row's length
             topo_grid[y] = row[0:board_length]
 
     return topo_grid, board_max_height
@@ -125,21 +175,56 @@ def print_grid(topo_grid):
     """
     Prints a right-aligned table of integers representing the heights
     of each square in the 2D array passed. This grid printer allows
-    for integers of up to 3 digits. The 2D array must be square or
+    for integers of up to 2 digits. The 2D array must be square or
     rectangular, as there is currently no error handling for 
     extraneous array elements. 
 
+    Parameters
+    ----------
+    topo_grid : 2D arr/list of lists
+        A 2d Python array of integers, square or rectangular
+    """    
+    for i in range(len(topo_grid)):
+        print("|", end="")
+        for j in range(len(topo_grid[0])):
+            print(str(topo_grid[i][j]).rjust(2), end="|")
+        print("")
+
+def print_grid3d(cube_grid, include_coords = False):
+    """
+    Prints a pipe-separated table of integers representing a 3D grid as follows:
+    0: air, 1: board, 2: water
+    The 3D array must be a perfect cuboid / orthotope, as there is no error
+    handling for extraneous array elements. 
 
     Parameters
     ----------
-    topo_grid : int
-        A 2d python array of integers, square or rectangular
-    """    
-    for i in range(len(topo_grid)):
-        for j in range(len(topo_grid[0])):
-            print(str(topo_grid[i][j]).rjust(3), end="|")
-        print("") 
-
+    topo_grid : 2D arr/list of lists
+        A 2d Python array of integers, square or rectangular
+    include_coords : bool, optional, default False
+        Add 3D coordinates to each position in addition to the material
+    
+    """        
+    length = len(cube_grid) 
+    width = len(cube_grid[0])
+    height = len(cube_grid[0][0])
+    
+    len_digits = len(str(length))-1
+    wid_digits = len(str(width))-1
+    ht_digits = len(str(height))-1
+    
+    print(f"Length {length}, Width {width}, Height {height}")
+    for y in range(width):
+        for x in range(length):
+            for z in range(height):
+                if include_coords:
+                    print("-".join([str(x).rjust(len_digits),
+                        str(y).rjust(wid_digits),
+                        str(z).rjust(ht_digits)]), end="x")
+                print(cube_grid[x][y][z], end='|')
+        print("")    
+        
+            
 if __name__ == '__main__':
     (topo_grid, board_max_height) = prepare_grid(length=args.grid_length, 
         width=args.grid_width, max_height=args.max_height)   
