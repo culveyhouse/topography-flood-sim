@@ -56,6 +56,9 @@ class MakeCartesianGrid:
         the length from the 2D grid input
     width : int
         the width from the 2D grid input
+    cubes : list of list of list of TopoCube objects
+        a 3D cube matrix of TopoCube instances used to track contents of the 3D 
+        space
 
     Methods
     -------
@@ -67,7 +70,7 @@ class MakeCartesianGrid:
         self.length = len(grid[0])
         self.width = len(grid)
         self.height = height
-        self.grid = grid    
+        self.grid = grid
         self.cube_grid = \
             [[[0 for z in range(self.height)] \
             for y in range(self.width)] \
@@ -110,28 +113,33 @@ class MakeCartesianGrid:
                     self.cubes[x][y][z] = TopoCube(coords=(x,y,z))
                 
                     if grid[y][x]-1>=z:
-                        self.cube_grid[x][y][z]=1
-                        self.cubes[x][y][z].content = 1 
+                        self.cube_grid[x][y][z]=CONTENT_BOARD
+                        self.cubes[x][y][z].content = CONTENT_BOARD
                         
-        ''' Temp area to print out object '''
-        include_coords = True
-        print(f"Length {self.length}, Width {self.width}, Height {self.height}")
-        for y in range(self.width):
-            for x in range(self.length):
-                print("", end="|")
-                for z in range(self.height):
-                    if include_coords:
-                        print("-".join([str(x).rjust(1),
-                            str(y).rjust(1),
-                            str(z).rjust(1)]), end=":")
-                    print(self.cubes[x][y][z].content, end='|')
-                print("", end=" ")
-            print("")            
-        ''' end temp area'''
-        
         return self.cube_grid
 
 class TopoCube:
+    """
+    TopoCube allows for a collection of Cube objects that compose a 3D
+    cartesian grid. TopoCube objects are created in the MakeCartesianGrid
+    class, and are created en masse on 3D grid initialization. For example,
+    an 8x8x8 grid will instantiate 512 objects. 
+    
+    For this reason, this is a "lite" class using the __slots__ method
+    which keeps each cube object lightweight and speeds up data retrieval.
+    
+    ...
+    Attributes
+    ----------
+    coords : list
+        (x, y, z) coordinates of the cube 
+    content : int, default 0
+        The material currently occupying the cube via 3 global variables:
+        0: air, 1: board, 2: water
+    drains_out : bool, default False
+        flag to indicate if this cube drains to any lower height 
+    """
+    
     __slots__ = ('coords', 'content', 'drains_out')
     
     def __init__(self, coords: list, content=0, drains_out=False):
