@@ -72,6 +72,10 @@ class MakeCartesianGrid:
             [[[0 for z in range(self.height)] \
             for y in range(self.width)] \
             for x in range(self.length)] 
+        self.cubes = \
+            [[[0 for z in range(self.height)] \
+            for y in range(self.width)] \
+            for x in range(self.length)] 
         if not manual_run:
             self.extrude()
         
@@ -103,12 +107,39 @@ class MakeCartesianGrid:
         for y in range(self.width):
             for x in range(self.length):
                 for z in range(self.height):
+                    self.cubes[x][y][z] = TopoCube(coords=(x,y,z))
+                
                     if grid[y][x]-1>=z:
                         self.cube_grid[x][y][z]=1
+                        self.cubes[x][y][z].content = 1 
+                        
+        ''' Temp area to print out object '''
+        include_coords = True
+        print(f"Length {self.length}, Width {self.width}, Height {self.height}")
+        for y in range(self.width):
+            for x in range(self.length):
+                print("", end="|")
+                for z in range(self.height):
+                    if include_coords:
+                        print("-".join([str(x).rjust(1),
+                            str(y).rjust(1),
+                            str(z).rjust(1)]), end=":")
+                    print(self.cubes[x][y][z].content, end='|')
+                print("", end=" ")
+            print("")            
+        ''' end temp area'''
         
         return self.cube_grid
 
-        
+class TopoCube:
+    __slots__ = ('coords', 'content', 'drains_out')
+    
+    def __init__(self, coords: list, content=0, drains_out=False):
+        self.coords = coords
+        self.content = int(content)
+        self.drains_out = drains_out
+
+
 def prepare_grid(topo_grid = None, length = None, width = None, max_height = None):
     """
     prepare_grid accepts a standard Python 2d array input, and normalizes it 
@@ -221,7 +252,7 @@ def print_grid3d(cube_grid, include_coords = False):
                 if include_coords:
                     print("-".join([str(x).rjust(len_digits),
                         str(y).rjust(wid_digits),
-                        str(z).rjust(ht_digits)]), end="x")
+                        str(z).rjust(ht_digits)]), end=":")
                 print(cube_grid[x][y][z], end='|')
             print("", end=" ")
         print("")    
