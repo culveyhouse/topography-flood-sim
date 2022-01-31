@@ -56,6 +56,9 @@ class MakeCartesianGrid:
         the length from the 2D grid input
     width : int
         the width from the 2D grid input
+    cubes : list of list of list of TopoCube objects
+        a 3D cube matrix of TopoCube instances used to track contents of the 3D 
+        space
 
     Methods
     -------
@@ -67,9 +70,13 @@ class MakeCartesianGrid:
         self.length = len(grid[0])
         self.width = len(grid)
         self.height = height
-        self.grid = grid    
+        self.grid = grid
         self.cube_grid = \
-            [[[0 for z in range(self.height)] \
+            [[[CONTENT_AIR for z in range(self.height)] \
+            for y in range(self.width)] \
+            for x in range(self.length)] 
+        self.cubes = \
+            [[[CONTENT_AIR for z in range(self.height)] \
             for y in range(self.width)] \
             for x in range(self.length)] 
         if not manual_run:
@@ -103,12 +110,46 @@ class MakeCartesianGrid:
         for y in range(self.width):
             for x in range(self.length):
                 for z in range(self.height):
+                    self.cubes[x][y][z] = TopoCube(coords=(x,y,z))
+                
                     if grid[y][x]-1>=z:
-                        self.cube_grid[x][y][z]=1
-        
+                        self.cube_grid[x][y][z]=CONTENT_BOARD
+                        self.cubes[x][y][z].content = CONTENT_BOARD
+                        
         return self.cube_grid
 
-        
+class TopoCube:
+    """
+    TopoCube allows for a collection of Cube objects that compose a 3D
+    cartesian grid. TopoCube objects are created in the MakeCartesianGrid
+    class, and are created en masse on 3D grid initialization. For example,
+    an 8x8x8 grid will instantiate 512 objects. 
+    
+    For this reason, this is a "lite" class using the __slots__ method
+    which keeps each cube object lightweight and speeds up data retrieval.
+    
+    ...
+    Attributes
+    ----------
+    coords : list
+        (x, y, z) coordinates of the cube 
+    content : int, default 0
+        The material currently occupying the cube via 3 global variables:
+        0: air, 1: board, 2: water
+    drains_out : bool, default False
+        flag to indicate if this cube drains to any lower height 
+    """
+    
+    __slots__ = ('coords', 'content', 'drains_out', 'resolved')
+    
+    def __init__(self, coords: list, content = 0, drains_out = False, 
+        resolved = False):
+        self.coords = coords
+        self.content = int(content)
+        self.drains_out = drains_out
+        self.resolved = resolved
+
+
 def prepare_grid(topo_grid = None, length = None, width = None, max_height = None):
     """
     prepare_grid accepts a standard Python 2d array input, and normalizes it 
@@ -216,15 +257,105 @@ def print_grid3d(cube_grid, include_coords = False):
     print(f"Length {length}, Width {width}, Height {height}")
     for y in range(width):
         for x in range(length):
+            print("", end="|")
             for z in range(height):
                 if include_coords:
                     print("-".join([str(x).rjust(len_digits),
                         str(y).rjust(wid_digits),
-                        str(z).rjust(ht_digits)]), end="x")
+                        str(z).rjust(ht_digits)]), end=":")
                 print(cube_grid[x][y][z], end='|')
+            print("", end=" ")
         print("")    
         
+def print_cube_grid(cube_grid, include_coords = False):
+    length = len(cube_grid) 
+    width = len(cube_grid[0])
+    height = len(cube_grid[0][0])
+    
+    len_digits = len(str(length))-1
+    wid_digits = len(str(width))-1
+    ht_digits = len(str(height))-1
+    
+    print(f"Length {length}, Width {width}, Height {height}")
+    for y in range(width):
+        for x in range(length):
+            print("", end="|")
+            for z in range(height):
+                if include_coords:
+                    print("-".join([str(x).rjust(len_digits),
+                        str(y).rjust(wid_digits),
+                        str(z).rjust(ht_digits)]), end=":")
+                print(f"{cube_grid[x][y][z].content}", end='|')
+            print("", end=" ")
+        print("")
+
+    
+def simulate_flood(cube_matrix):
+    
+    ' first define flood level '
+    flood_level = 0
+    
+    ''' now take a 2d slice at the flood level + 1, and start flooding one square
+    at a time '''
+    
+    length = len(cube_matrix)
+    width = len(cube_matrix[0])
+    
+    for y in range(width):
+        for x in range(length):
+            print(f"coords are {x},{y}")
+            touched = [[False for i in range(width)] for j in range(length)]
             
+            def crawl(cx=x, cy=y, drains_out = False):
+                # stary by touching current seed square
+                touched[cx][cy] = True
+                # Must be air to bother with recursive function 
+                if cube_matrix[cx][cy][0].drains_out:
+                    print(f"Nice, we detected that {cx},{cy} drains out")
+                if cube_matrix[cx][cy][0].content == CONTENT_AIR and not cube_matrix[cx][cy][0].drains_out:
+                    print(f"spreading out from {cx},{cy}")
+                    paths = [(cx,cy-1), (cx+1,cy), (cx,cy+1), (cx-1,cy)]  # only 4 paths, diagonal walls are watertight. 
+                    for path in paths:
+                        px, py = path[0], path[1]
+                        if (0 <= px <= length-1) and (0 <= py <= width-1): 
+                            if cube_matrix[px][py][0].drains_out:
+                                print(f"Already detected that {px},{py} drains, so closing recursion and draining back to air")
+                                time.sleep(1)
+                                return True
+                            
+                            print(f"Crawling around at {px}, {py} / content {cube_matrix[px][py][0].content}")
+                            if cube_matrix[px][py][0].content != CONTENT_BOARD and not touched[px][py] : 
+                                print("Found unresolved air")
+                                
+                                drains_out = crawl(px, py) 
+                                if drains_out:
+                                    cube_matrix[cx][cy][0].drains_out == True 
+                                    cube_matrix[px][py][0].drains_out == True 
+                                    return True
+                                print(f"Does {px},{py} drain ? {drains_out}")
+                            else: 
+                                print(f"No recursion for {px},{py} since content {cube_matrix[px][py][0].content} and touched is {touched[px][py]}")                                
+
+                        elif cube_matrix[cx][cy][0].content == CONTENT_AIR: # drains off board at level
+                            print(f"Draining out, {cx},{cy} doesnt hold wasser")
+                            drains_out = True
+                            cube_matrix[cx][cy][0].drains_out == True
+                            #cube_matrix[px][py][0].drains_out == True                             
+                            return True
+                    
+                    print(f"{cx},{cy} Drains out... {cube_matrix[cx][cy][0].drains_out} ")
+                    if not cube_matrix[cx][cy][0].drains_out:
+                        print(f"Yay, making water")
+                        #time.sleep(1)
+                        cube_matrix[cx][cy][0].content = CONTENT_WATER
+                        cube_matrix[cx][cy][0].resolved = True
+                        return False                                
+                else:
+                    return False    
+         
+            crawl()
+    return cube_matrix
+       
 if __name__ == '__main__':
     (topo_grid, board_max_height) = prepare_grid(length=args.grid_length, 
         width=args.grid_width, max_height=args.max_height)   
