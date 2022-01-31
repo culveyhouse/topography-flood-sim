@@ -304,30 +304,47 @@ def simulate_flood(cube_matrix):
     for y in range(width):
         for x in range(length):
             print(f"coords are {x},{y}")
+            touched = [[False for i in range(width)] for j in range(length)]
             
             def crawl(cx=x, cy=y, drains_out = False):
-                if cube_matrix[cx][cy][0].content == CONTENT_AIR:
-                    paths = [(cx,cy-1), (cx+1,cy),(cx,cy+1),(cx-1,cy)]  # only 4 paths,
+                # stary by touching current seed square
+                touched[cx][cy] = True
+                # Must be air to bother with recursive function 
+                if cube_matrix[cx][cy][0].drains_out:
+                    print(f"Nice, we detected that {cx},{cy} drains out")
+                if cube_matrix[cx][cy][0].content == CONTENT_AIR and not cube_matrix[cx][cy][0].drains_out:
+                    print(f"spreading out from {cx},{cy}")
+                    paths = [(cx,cy-1), (cx+1,cy), (cx,cy+1), (cx-1,cy)]  # only 4 paths, diagonal walls are watertight. 
                     for path in paths:
-                        px = path[0]
-                        py = path[1]
-                        if (0 <= px <= length-1) and (0 <= py <= width-1):
-                            print(f"Crawling around at {px}, {py} / content {cube_matrix[px][py][0].content}")
-                            if cube_matrix[px][py][0].content == CONTENT_AIR and not cube_matrix[px][py][0].resolved : 
-                                print("Found unresolved air")
-                                cube_matrix[cx][cy][0].resolved = True
-                                drains_out = crawl(px, py) 
-                                print("Drains? {drains_out}")
-            
-                            else: 
-                                print(f"Nope found {cube_matrix[px][py][0].content}")                                
-
-                        else: # drains off board at level
-                            if cube_matrix[cx][cy][0].content == CONTENT_AIR:
-                                drains_out = True
-                                cube_matrix[cx][cy][0].drains_out == True
+                        px, py = path[0], path[1]
+                        if (0 <= px <= length-1) and (0 <= py <= width-1): 
+                            if cube_matrix[px][py][0].drains_out:
+                                print(f"Already detected that {px},{py} drains, so closing recursion and draining back to air")
+                                time.sleep(1)
                                 return True
-                    if drains_out is False:
+                            
+                            print(f"Crawling around at {px}, {py} / content {cube_matrix[px][py][0].content}")
+                            if cube_matrix[px][py][0].content != CONTENT_BOARD and not touched[px][py] : 
+                                print("Found unresolved air")
+                                
+                                drains_out = crawl(px, py) 
+                                if drains_out:
+                                    cube_matrix[cx][cy][0].drains_out == True 
+                                    cube_matrix[px][py][0].drains_out == True 
+                                    return True
+                                print(f"Does {px},{py} drain ? {drains_out}")
+                            else: 
+                                print(f"No recursion for {px},{py} since content {cube_matrix[px][py][0].content} and touched is {touched[px][py]}")                                
+
+                        elif cube_matrix[cx][cy][0].content == CONTENT_AIR: # drains off board at level
+                            print(f"Draining out, {cx},{cy} doesnt hold wasser")
+                            drains_out = True
+                            cube_matrix[cx][cy][0].drains_out == True
+                            #cube_matrix[px][py][0].drains_out == True                             
+                            return True
+                    
+                    print(f"{cx},{cy} Drains out... {cube_matrix[cx][cy][0].drains_out} ")
+                    if not cube_matrix[cx][cy][0].drains_out:
                         print(f"Yay, making water")
                         #time.sleep(1)
                         cube_matrix[cx][cy][0].content = CONTENT_WATER
@@ -335,7 +352,7 @@ def simulate_flood(cube_matrix):
                         return False                                
                 else:
                     return False    
-            
+         
             crawl()
     return cube_matrix
        
