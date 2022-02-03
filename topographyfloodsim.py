@@ -371,23 +371,16 @@ def simulate_flood(cube_matrix):
     
 def flood_statistics(cube_matrix):    
     
-    ''' DLC ZZZ remove 
     total_flooding = 0
     max_water_level = 0
     for x in cube_matrix:
         for y in x:
-            for z in y:
-                print(z.content, end=".")
+            for z_index, z in enumerate(y):
                 if z.content == CONTENT_WATER:
                     total_flooding +=1
-    ''' ''' DLC ZZZ end remove '''
-    
-    flood_sub = [[[z.content for z in cube_matrix[x][y]].count(CONTENT_WATER) 
-                for y in range(len(cube_matrix[0]))] 
-                for x in range(len(cube_matrix))]
-    total_flooding = sum(list(chain(*flood_sub)))
-  
-    print(total_flooding)
+                    max_water_level = max(z_index+1, max_water_level)
+
+    print(total_flooding, max_water_level)
 
     
 
