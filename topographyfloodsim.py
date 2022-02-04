@@ -4,7 +4,7 @@ import sys
 import argparse
 import time
 import random
-from itertools import count, chain
+from itertools import count
 
 # Default dimensions if no 2D grid length / width specified
 DEFAULT_LENGTH, DEFAULT_WIDTH, DEFAULT_MAX_HEIGHT = 8, 8, 10 
@@ -362,16 +362,22 @@ def full_simulation(topo_grid=None, length=args.grid_length,
     total_flooding, max_water_level = flood_statistics(result)
     print(f"Total flooding is {total_flooding} cubes.")
     print(f"Max water level is {max_water_level}.")
+    return (total_flooding, max_water_level)
     
 if __name__ == '__main__':
     
-    chessboard = [  [0,8,8,7,7,4,4,4],
-                    [8,0,0,0,0,0,0,3],
-                    [8,0,0,0,0,0,0,3],
-                    [4,0,0,0,0,0,0,4],
-                    [4,0,0,0,0,0,0,3],
-                    [4,0,0,0,0,0,0,4],
-                    [4,0,0,0,0,0,0,3],
-                    [4,6,6,6,4,4,4,4],
-    ]
+    if not any([args.grid_length, args.grid_width, args.max_height]):
+        chessboard = [  [0,8,8,7,7,4,4,4],
+                        [8,0,0,0,0,0,0,3],
+                        [8,0,0,0,0,0,0,3],
+                        [4,0,0,0,0,0,0,4],
+                        [4,0,0,0,0,0,0,3],
+                        [4,0,0,0,0,0,0,4],
+                        [4,0,0,0,0,0,0,3],
+                        [4,6,6,6,4,4,4,4],
+        ]
+    else: 
+        chessboard = None
     full_simulation(chessboard)
+
+    
