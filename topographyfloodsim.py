@@ -366,7 +366,6 @@ def simulate_flood(cube_matrix):
                         cube_matrix[x][y][flood_level].drains_out = True 
                     else:
                         cube_matrix[x][y][flood_level].content = CONTENT_WATER                    
-
     return cube_matrix
     
 def flood_statistics(cube_matrix):    
