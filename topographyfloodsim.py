@@ -6,9 +6,9 @@ import time
 import random
 from itertools import count
 
-# Default dimensions if no 2D grid length / width specified
+# Default dimensions if no grid length / width / height specified
 DEFAULT_LENGTH, DEFAULT_WIDTH, DEFAULT_MAX_HEIGHT = 8, 8, 10 
-# Descriptive key of 3D grid contents
+# Descriptive key for 3D cube contents
 CONTENT_AIR, CONTENT_BOARD, CONTENT_WATER = 0, 1, 2
 
 '''
@@ -58,14 +58,15 @@ class MakeCartesianGrid:
         the length from the 2D grid input
     width : int
         the width from the 2D grid input
-    cubes : list of lists of lists of TopoCube objects
+    cubes : 3d arr / list of lists of lists of TopoCube objects
         a 3D cube matrix of TopoCube instances used to track contents of the 3D 
         space
 
     Methods
     -------
     extrude()
-        Produces a 3D array by extruding the heights of each grid square.
+        Produces a 3D array of TopoCubes by extruding the heights of each 
+        grid square.
     """      
     
     def __init__(self, grid, height, manual_run=False):
@@ -100,7 +101,7 @@ class MakeCartesianGrid:
     
         Returns
         -------
-        cube_grid : 3D arr/list of list of lists
+        cube_grid : 3D arr / list of list of lists of TopoCube objects
             A fullly extruded 3d Python array, with int values of either 0 (air)
             or 1 (board)
         """
@@ -207,7 +208,7 @@ def prepare_grid(topo_grid=None, length=None, width=None, max_height = None):
                 row.extend([0 for i in range((board_length-len(row)))])  
             # trim longer rows to first row's length
             topo_grid[y] = row[0:board_length]
-        print("Your requested 2D grid is:")            
+        print("Your custom topography grid is:")            
     
     print(print_grid(topo_grid))
     
@@ -220,6 +221,9 @@ def print_grid(topo_grid):
     for integers of up to 2 digits. The 2D array must be square or
     rectangular, as there is currently no error handling for 
     extraneous array elements. 
+    
+    To minimize possible errors, always pass a 2D grid of 'height' values 
+    through prepare_grid() first to properly groom the topography grid.
 
     Parameters
     ----------
@@ -246,11 +250,19 @@ def print_cube_grid(cube_grid, include_coords = False):
     include_coords : bool, optional, default False
         Add 3D coordinates to each position in addition to the material
     
+    Example Print Output
+    --------------------
+    Length 3, Width 3, Height 3
+    |1|1|0| |0|0|0| |1|0|0| 
+    |1|1|1| |0|0|0| |0|0|0| 
+    |1|1|1| |0|0|0| |1|1|0|     
+    
     """           
     length = len(cube_grid) 
     width = len(cube_grid[0])
     height = len(cube_grid[0][0])
     
+    # Detect max digit length for clean right justification of table
     len_digits = len(str(length))-1
     wid_digits = len(str(width))-1
     ht_digits = len(str(height))-1
@@ -269,72 +281,107 @@ def print_cube_grid(cube_grid, include_coords = False):
         print("")
 
 def simulate_flood(cube_matrix):
+    """
+    The primary function that simulates flood physics upon the 3D matrix of
+    TopoCubes passed. 
+
+    Parameters
+    ----------
+    cube_matrix : 3D arr / list of lists of lists of TopoCube objects
+        A 3D Python array of TopoCode objects generated in MakeCartesianGrid
     
-    ' first define flood level '
-   
+    Returns
+    -------
+    cube_matrix : 3D arr / list of lists of lists of TopoCube objects
+        A fullly extruded 3d Python array of TopoCube objects which hold 
+        information about the content of each cube (air, board, or water)
+  
+    """
+        
+    # Establish the 3D parameters of the simulation based on matrix dimensions
     length = len(cube_matrix)
     width = len(cube_matrix[0])
     height = len(cube_matrix[0][0])    
     
+    # Flood the topography one level at a time, beginning at bottom
     for flood_level in range(height):
-        'loop through each of x & y'
+        # Flood each square individually on this level with pathfinding
         for y in range(width):
             for x in range(length):
-                'check if x,y is board or has water, then just ignore'
-                # Must be air to bother with recursive function 
-                if cube_matrix[x][y][flood_level].content == CONTENT_BOARD:
-                    continue
-                # detect water below
-                elif flood_level>0 and cube_matrix[x][y][flood_level-1] == CONTENT_AIR:
-                    cube_matrix[x][y][flood_level].content = CONTENT_AIR
-                    continue
-                # If we already detected that the square drains, ignore
-                elif cube_matrix[x][y][flood_level].drains_out:
-                    cube_matrix[x][y][flood_level].content = CONTENT_AIR
-                    time.sleep(1)
-                # Check if it's the edge of the board. Ignore
-                elif (0 in (x,y) or x == length-1 or y == width-1):
-                    cube_matrix[x][y][flood_level].drains_out = True
                 
-                # Primary loop and recursion to check for air
-                elif cube_matrix[x][y][flood_level].content == CONTENT_AIR:    
+                # Store current cube as a shorter variable
+                current_cube = cube_matrix[x][y][flood_level]
+                cube_below = cube_matrix[x][y][flood_level-1]
+                
+                # Must be air to bother with recursive function 
+                if current_cube.content == CONTENT_BOARD:
+                    continue
+                # Detect if there is air below. If not, then drain the square
+                elif flood_level>0 and cube_below == CONTENT_AIR:
+                    current_cube.content = CONTENT_AIR
+                    continue
+                # If we already detected that the square drains, drain & ignore
+                elif current_cube.drains_out:
+                    current_cube.content = CONTENT_AIR
+                # Check if it's the edge of the board, if so, drain & ignore
+                elif (0 in (x,y) or x == length-1 or y == width-1):
+                    current_cube.drains_out = True
+                
+                # Primary pathfinding loop to check for containment or drainage
+                elif current_cube.content == CONTENT_AIR:    
 
                     def drain():
+                        """
+                        The nested pathfinding function that crawls through the 
+                        2D slice of the 3D grid at the current flood level to 
+                        check for drainage at the current position. It uses the 
+                        current x, y, and flood_level values as the position.
+                    
+                        Returns
+                        -------
+                        True/False : bool
+                            If the function detected that the current cube 
+                            drains out, it returns True. If water pools at the 
+                            cube, it returns False 
+                        """
                         touched = set([x,y])
                         pathfinding = [(x,y)]
                         
                         while pathfinding:
                             tx,ty = pathfinding.pop(0)
                             touched.add((tx,ty)) 
-                            paths = [ (0,-1),(1,0),(0,+1),(-1,0)]
+                            paths = [(0,-1),(1,0),(0,+1),(-1,0)]
                             for (i,j) in paths:
                                 px, py = tx+i, ty+j
                                 
+                                current_cube = cube_matrix[px][py][flood_level]
                                 if (px,py) in touched:
                                     continue
-                                if cube_matrix[px][py][flood_level].drains_out:
+                                if current_cube.drains_out:
                                     return True
                                 if not (0 <= px <= length-1) and (0 <= py <= width-1):
                                     return True
-                                if cube_matrix[px][py][flood_level].content == CONTENT_WATER:
+                                if current_cube.content == CONTENT_WATER:
                                     return False
-                                if cube_matrix[px][py][flood_level].content == CONTENT_BOARD:
+                                if current_cube.content == CONTENT_BOARD:
                                     continue
                                 if 0 in (px,py) or px == length-1 or py == width-1:
                                     return True                            
-                                if cube_matrix[px][py][flood_level].content == CONTENT_AIR:
+                                if current_cube.content == CONTENT_AIR:
                                     touched.add((px,py))
                                     pathfinding.append((px,py))
                         return False
                     drained = drain()
                
                     if drained: 
-                        cube_matrix[x][y][flood_level].drains_out = True 
+                        current_cube.drains_out = True 
                     else:
-                        cube_matrix[x][y][flood_level].content = CONTENT_WATER                    
+                        current_cube.content = CONTENT_WATER                    
     return cube_matrix
     
-def flood_statistics(cube_matrix, request=None):    
+def flood_statistics(cube_matrix, request=None): 
+    """
+    """    
     
     total_flooding, max_water_level = 0, 0
     for x in cube_matrix:
@@ -349,9 +396,11 @@ def flood_statistics(cube_matrix, request=None):
         return max_water_level
     else:
         return (total_flooding, max_water_level)
-        
+
 def full_simulation(topo_grid=None, length=args.grid_length, 
     width=args.grid_width, max_height=args.max_height):
+    """
+    """
     
     groomed_grid, max_height = prepare_grid(topo_grid, length, width, 
         max_height)
@@ -363,9 +412,27 @@ def full_simulation(topo_grid=None, length=args.grid_length,
     print(f"Total flooding is {total_flooding} cubes.")
     print(f"Max water level is {max_water_level}.")
     return (total_flooding, max_water_level)
-    
+
+"""
+This area automatically triggers the entire full_simulation from the command 
+line, and accepts command line arguments as defined at the top of the script. 
+
+To use the topographyfloodsim file like this, you may either pass your 
+chessboard or grid in the conditional below, or you may request a random 
+topography grid by executing this python file with all 3 arguments 
+(-l, -w, and --mh) as documented above, like this example: 
+
+python topographyfloodsim -l 8 -w 8 --mh 10
+
+If you choose to randomize, but omit one or more of the three arguments, the 
+script will use the defaults for each dimension as defined at the top of the
+script. 
+
+"""
+
 if __name__ == '__main__':
     
+    # Check if any of 3 arguments were passed, otherwise pass this grid
     if not any([args.grid_length, args.grid_width, args.max_height]):
         chessboard = [  [0,8,8,7,7,4,4,4],
                         [8,0,0,0,0,0,0,3],
@@ -378,6 +445,11 @@ if __name__ == '__main__':
         ]
     else: 
         chessboard = None
+    
+    '''
+    Now execute the entire simulation with printed results and return 
+    variables if needed 
+    '''
     full_simulation(chessboard)
 
     
