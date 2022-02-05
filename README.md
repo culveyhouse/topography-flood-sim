@@ -1,5 +1,15 @@
 # topography-flood-sim
 
+## Table of Contents
+[Synopsis](#synopsis)  
+[Built With](#built-with)  
+[Environment and Methods Used](#environment-and-methods-used)  
+[How To Use This Project](#how-to-use-this-project)  
+[Express Installation of Python Environment](#express-installation-of-python-environment)  
+[Verbose Installation of Python Environment](#verbose-installation-of-python-environment)  
+[More Information](#more-information)  
+[Troubleshooting and Known Errors](#troubleshooting-and-known-errors)  
+[Authors and Acknowledgments](#authors-and-acknowledgments)  
 
 ## Synopsis
 
@@ -19,11 +29,15 @@ This simulator applies water to a 3D topographical grid, then computes the total
 
 To be added 
 
-## Express Installation of Python environment
+## Express Installation of Python Environment
 
 To be added 
 
-## Verbose Installation of Python environment
+## Verbose Installation of Python Environment
+
+To be added
+
+## More Information
 
 To be added
 
@@ -31,10 +45,8 @@ To be added
 
 To be added
 
-## Authors
+## Authors and Acknowledgments
 
 * **Daniel Culveyhouse** (dculvey@gmail.com)
 
-## Acknowledgments
 
-* To be added 
