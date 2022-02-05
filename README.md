@@ -15,6 +15,8 @@
 
 This simulator built in Python applies water to a 3D topographical grid, then computes the total volume of flood water that pools on that grid. Typically the input is a "chessboard" of height values, or in other words an 8x8 2D array of integers up to a height of 10. However, the simulator has been successfully tested with 2D arrays as large as 200x200 with height values of up to 200. The project was built using Python 3.8.12, however it runs on Python versions as early as 3.6.9.
 
+The simulator was assigned to me as a project by the Cavnue development team, and the original request was quite simple: "Imagine a chess board where each square has a height, forming a topology. Water is poured over the entire board and collects in 'valleys'.  What volume of water does a given board hold?" This simulation solves this challenge and works with 100% accuracy. 
+
 To run and experiment with the simulation, please start with [How To Use This Project](#how-to-use-this-project), and feel free to enjoy learning more about the simulator in [More Information](#more-information). Then, install it per the steps in either the [express](#express-installation-of-python-environment) or [verbose](#verbose-installation-of-python-environment) instructions. 
 
 ## Built With
@@ -139,7 +141,13 @@ python3 topographyfloodsim.py -l 8 -w 8 -mh 10
 
 ## More Information
 
-To be added
+1. To write this simulation, I immediately noticed I would need to build a pathfinding algorithm. Several pathfinding examples exist and are widely used, and at first I attempted a recursive pathfinder. However, I abandoned this as it was too resource-heavy and very time-consuming to troubleshoot and debug. I also wanted this simulator to function perfectly on a lightweight server with low memory. I settled on a simpler while loop with a 4-directonal pathfinder, similar to [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm). 
+2. I decide to use an OOP system to represent the 3D cubes as objects, so that each object may store its own information, namely its content (0=board, 1=air, 2=water). By using this structure, the simulation may be expanded in the future with more materials, behaviors, etc.
+3. The simulation functions contrary to the physics of pouring water over a topology, but rather it functions by flooding the topology upwards, resulting in the same end behavior. Water drains or pools based on the topology, and uses pathfinding to attempt to drain. Water will typically pool in multiple areas at multiple heights, and I included a few visuals here to depict the tests that are availalbe in `tests.py`:
+ a. The first test is a small control grid which fully drains with a total flooding of zero (0) cubes: 
+ ![4x4 Full Drainage](https://user-images.githubusercontent.com/14173083/152660186-fdd50ea6-c43a-47a3-91ae-9dcdbf518ad5.png)
+ 
+ 
 
 ## Troubleshooting and Known Errors 
 
