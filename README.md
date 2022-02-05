@@ -1,8 +1,8 @@
 # topography-flood-sim
 
 ## Table of Contents
-[Headers](#headers)  
-[Emphasis](#emphasis)  
+[Synopsis](#synopsis)  
+[Built With](#built-with)  
 
 ## Synopsis
 
