@@ -13,12 +13,13 @@
 
 ## Synopsis
 
-This simulator applies water to a 3D topographical grid, then computes the total volume of flood water that pools on that grid. Currently, the maximum allowable grid is an 8x8 "chessboard", and the current maximum height of each sector is 10 cubes. These limits may increase in future releases.  
+This simulator built in Python applies water to a 3D topographical grid, then computes the total volume of flood water that pools on that grid. Typically the input is a "chessboard" of height values, or in other words an 8x8 2D array of integers up to a height of 10. However, the simulator has been successfully tested with 2D arrays as large as 200x200 with height values of up to 200. The project was built using Python 3.8.12, however it runs on Python versions as early as 3.6.9.
+
+To run and experiment with the simulation, please start with [How To Use This Project](#how-to-use-this-project), and feel free to enjoy learning more about the simulator in [More Information](#more-information). Then, install it per the steps in either the [express](#express-installation-of-python-environment) or [verbose](#verbose-installation-of-python-environment) instructions. 
 
 ## Built With
 
 * [Python 3.8.12](https://www.python.org/downloads/release/python-3812/) - The primary language used, including standard libraries only.
-* 
 
 ## Environment and Methods Used
 * [GitHub](https://github.com/) - Repo and version control
@@ -27,11 +28,48 @@ This simulator applies water to a 3D topographical grid, then computes the total
 
 ## How To Use This Project
 
-To be added 
+1. Once your Python environment and this code is ready to run (per the instructions in [express](#express-installation-of-python-environment) or [verbose](#verbose-installation-of-python-environment) installation), you may automatically run the entire simulation with a pre-defined chessboard with 
+```
+python topographyfloodsim.py
+```
+  * This run will report the total flooding (in cubes) of the chessboard, as well as the maximum water height detected. 
+
+2. You may change the default chessboard to any topography of your choosing by modifying the chessboard 2D array at the end of the [topographyfloodsim.py](topographyfloodsim.py) script around line 495: 
+```
+        chessboard = [  [0,8,8,7,7,4,4,4],
+                        [8,0,0,0,0,0,0,3],
+                        [8,0,0,0,0,0,0,3],
+                        [4,0,0,0,0,0,0,4],
+                        [4,0,0,0,0,0,0,3],
+                        [4,0,0,0,0,0,0,4],
+                        [4,0,0,0,0,0,0,3],
+                        [4,6,6,6,4,4,4,4],
+        ]
+```
+
+3. If you prefer, you may have the script randomize a topography for you by passing at least one of three arguments through the command line: -l for length, -w for width, and/or --mh for maximum height. If any of these three arguments are passed, then the script ignores the custom chessboard and generates a random one based on your dimensions passed. If you pass at least one argument but not all three, the other dimensions will default to values at the top of the script (DEFAULT_LENGTH, DEFAULT_WIDTH, DEFAULT_MAX_HEIGHT). Here's an example of running the simulation with a randomized topography:
+```
+python topographyfloodsim.py -l 8 -w 8 --mh 10
+```
+
+4. You may verify that the accuracy of the simulation is 100%, by running the unit tests. You may also add additional unit tests by using the same pattern in the [tests.py](tests.py) file, but keep in mind that you must manually compute the correct answer yourself, so that the test may compare that with the simulation. Run the tests like this: 
+```
+python tests.py
+```
+
+5. The topgraphyfloodsim.py main script executes a full simulation automatically by default. To override the behavior of the full simulation (such as to suppress printing the grids), you may locally modify the steps in the full_simulation() function.
+
 
 ## Express Installation of Python Environment
 
-To be added 
+1. On a recent Ubuntu version (preferably 18.04 or more recent), install Python 3.8.12 [Python 3.8.12](https://www.python.org/downloads/release/python-3812/) on your environment. 
+2. Check out this code using the current release branch.
+3. Create a virtual Python environment inside that project folder and activate it. 
+4. Although this simulator uses only the Python standard libraries, it is a common step to run the requirements_dev.txt file to update the pip==21.1.1 and
+setuptools==56.0.0 versions. Run this from the project root:
+```
+pip3 install -r requirements_dev.txt
+```
 
 ## Verbose Installation of Python Environment
 
