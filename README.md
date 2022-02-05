@@ -144,10 +144,24 @@ python3 topographyfloodsim.py -l 8 -w 8 -mh 10
 1. To write this simulation, I immediately noticed I would need to build a pathfinding algorithm. Several pathfinding examples exist and are widely used, and at first I attempted a recursive pathfinder. However, I abandoned this as it was too resource-heavy and very time-consuming to troubleshoot and debug. I also wanted this simulator to function perfectly on a lightweight server with low memory. I settled on a simpler while loop with a 4-directonal pathfinder, similar to [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm). 
 2. I decide to use an OOP system to represent the 3D cubes as objects, so that each object may store its own information, namely its content (0=board, 1=air, 2=water). By using this structure, the simulation may be expanded in the future with more materials, behaviors, etc.
 3. The simulation functions contrary to the physics of pouring water over a topology, but rather it functions by flooding the topology upwards, resulting in the same end behavior. Water drains or pools based on the topology, and uses pathfinding to attempt to drain. Water will typically pool in multiple areas at multiple heights, and I included a few visuals here to depict the tests that are availalbe in `tests.py`:
- a. The first test is a small control grid which fully drains with a total flooding of zero (0) cubes: 
- ![4x4 Full Drainage](https://user-images.githubusercontent.com/14173083/152660186-fdd50ea6-c43a-47a3-91ae-9dcdbf518ad5.png)
+
+   a. The first test is a small control grid which fully drains with a total flooding of zero (0) cubes: 
+   
+ <img src="https://user-images.githubusercontent.com/14173083/152660186-fdd50ea6-c43a-47a3-91ae-9dcdbf518ad5.png" width="300" />
+
+   b. The second test is a chessboard with full containment and walls on all sides, which floods 3 layers deep: 
+     
+ <img src="https://user-images.githubusercontent.com/14173083/152660184-36eba653-269b-442a-ad2d-a096013b2030.png" width="300" />
  
+   c. The third test is a chessboard maze where water drains through the maze, but pools in just one place: 
+   
+ <img src="https://user-images.githubusercontent.com/14173083/152660188-54407599-5107-4181-b998-dec59aefe1ad.png" width="300" /> 
  
+   d. The last test is a tiered waterfall, where some water pools at each terrace:
+   
+ <img src="https://user-images.githubusercontent.com/14173083/152660187-77ad1640-6998-4cdc-85c8-b33af1e9df35.png" width="300" /> 
+
+4. Possible future features: Because of the object-oriented approach I used in the 3D grid, this simulation may be extended to support other materials, including sand, mud, concrete, lava, and others. Additionally, it can support erosion physics, and can support cavitation (pathfinding through caves) which could also account for air pockets in the cave systems. 
 
 ## Troubleshooting and Known Errors 
 
