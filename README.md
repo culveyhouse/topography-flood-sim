@@ -73,7 +73,23 @@ pip3 install -r requirements_dev.txt
 
 ## Verbose Installation of Python Environment
 
-To be added
+This optional installation process will provide a fully functional Cloud9 environment within a free-tier AWS account. Note that to complete this, you'll need a valid credit card, as AWS requires this just to verify identity for a one year free-tier AWS account. 
+
+1. Create a new [gmail](https://accounts.google.com/signup/v2/webcreateaccount?service=mail&continue=https%3A%2F%2Fmail.google.com%2Fmail%2F&flowName=GlifWebSignIn&flowEntry=SignUp) account.
+2. Use that account to create a new AWS account here: [Sign Up for AWS](https://portal.aws.amazon.com/billing/signup?nc2=h_ct&src=header_signup&redirect_url=https%3A%2F%2Faws.amazon.com%2Fregistration-confirmation#/start). Note that this will be a free-tier account. 
+ * Choose "Personal Account" on the next page and enter your personal information, and then enter your credit card information on the following page. 
+ * Follow all instructions to verify your AWS account information, including verifying your gmail address if necessary. 
+ * You should now have a root user account for your new AWS free-tier account, which is fine to use for this temporary installation. 
+ * Log into AWS using your log in credentials, and then you should be redirected to your ["Console Home"](https://console.aws.amazon.com/console/home)
+3. Now set up a Cloud9 development environment, which will automatically create an EC2 instance. The easiest way to find the Cloud9 AWS service is to just type `cloud9` into the search bar at the top of your Console Home. Or, you can find the Cloud9 service under the "Services" button at the top, and in the "Developer Tools" category.
+ * Now you should be in the AWS Cloud9 main page. Click "Create Environment".
+ * Name it something with an optional description. You can use "Flood Simulator" as the name if you like. Click "Next Step".
+ * Allow it to create an EC2 instance, but please choose the "t3.small" size. Although it doesn't state that it is covered in the free-tier, you will not be charged as long as this environment is temporary. 
+ * Choose Ubuntu 18.04 LTS as the platform, **not** Amazon Linux 2. 
+ * Allow the other defaults and click "Next Step". 
+ * On the next page, simply review your request and then click "Create Environment". 
+ * After a few minutes, your new Cloud9 IDE should be created, and you'll begin with a bash terminal and a simple directory structure! 
+4. 
 
 ## More Information
 
@@ -81,10 +97,13 @@ To be added
 
 ## Troubleshooting and Known Errors 
 
-To be added
+1. There are currently no known errors on Python versions of 3.6.9 or greater, when simulating an 8x8 chessboard topography. 
+2. Grids as large as 200x200x200 execute fine, albeit slower, so be patient if you're attempting these sizes. 
+3. However, a grid of 230x230x230 ran out of memory on a Cloud9 "small" server and froze the EC2 server, so if you are using that same environment, avoid grids over 200x200x200.
 
 ## Authors and Acknowledgments
 
-* **Daniel Culveyhouse** (dculvey@gmail.com)
+* **Daniel Culveyhouse** (dculvey@gmail.com): Author
+* Special thanks to the Cavnue development team for this assignment. 
 
 
