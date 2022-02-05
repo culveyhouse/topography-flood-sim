@@ -2,14 +2,14 @@
 
 ## Table of Contents
 [Synopsis](#synopsis)  
-[Built With](#built-with) 
-[Environment and Methods Used](#environment-and-methods-used)
-[How To Use This Project](#how-to-use-this-project)
-[Express Installation of Python Environment](#express-installation-of-python-environment)
-[Verbose Installation of Python Environment](#verbose-installation-of-python-environment)
-[More Information](#more-information)
-[Troubleshooting and Known Errors](#troubleshooting-and-known-errors)
-[Authors and Acknowledgments](#authors-and-acknowledgments)
+[Built With](#built-with)  
+[Environment and Methods Used](#environment-and-methods-used)  
+[How To Use This Project](#how-to-use-this-project)  
+[Express Installation of Python Environment](#express-installation-of-python-environment)  
+[Verbose Installation of Python Environment](#verbose-installation-of-python-environment)  
+[More Information](#more-information)  
+[Troubleshooting and Known Errors](#troubleshooting-and-known-errors)  
+[Authors and Acknowledgments](#authors-and-acknowledgments)  
 
 ## Synopsis
 
