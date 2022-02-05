@@ -30,7 +30,7 @@ To run and experiment with the simulation, please start with [How To Use This Pr
 
 1. Once your Python environment and this code is ready to run (per the instructions in [express](#express-installation-of-python-environment) or [verbose](#verbose-installation-of-python-environment) installation), you may automatically run the entire simulation with a pre-defined chessboard with 
 ```
-python topographyfloodsim.py
+python3 topographyfloodsim.py
 ```
   * This run will report the total flooding (in cubes) of the chessboard, as well as the maximum water height detected. 
 
@@ -49,12 +49,12 @@ python topographyfloodsim.py
 
 3. If you prefer, you may have the script randomize a topography for you by passing at least one of three arguments through the command line: -l for length, -w for width, and/or --mh for maximum height. If any of these three arguments are passed, then the script ignores the custom chessboard and generates a random one based on your dimensions passed. If you pass at least one argument but not all three, the other dimensions will default to values at the top of the script (DEFAULT_LENGTH, DEFAULT_WIDTH, DEFAULT_MAX_HEIGHT). Here's an example of running the simulation with a randomized topography:
 ```
-python topographyfloodsim.py -l 8 -w 8 --mh 10
+python3 topographyfloodsim.py -l 8 -w 8 --mh 10
 ```
 
 4. You may verify that the accuracy of the simulation is 100%, by running the unit tests. You may also add additional unit tests by using the same pattern in the [tests.py](tests.py) file, but keep in mind that you must manually compute the correct answer yourself, so that the test may compare that with the simulation. Run the tests like this: 
 ```
-python tests.py
+python3 tests.py
 ```
 
 5. The topgraphyfloodsim.py main script executes a full simulation automatically by default. To override the behavior of the full simulation (such as to suppress printing the grids), you may locally modify the steps in the full_simulation() function.
@@ -81,7 +81,7 @@ This optional installation process will provide a fully functional Cloud9 enviro
  * Follow all instructions to verify your AWS account information, including verifying your gmail address if necessary. 
  * You should now have a root user account for your new AWS free-tier account, which is fine to use for this temporary installation. 
  * Log into AWS using your log in credentials, and then you should be redirected to your ["Console Home"](https://console.aws.amazon.com/console/home)
-3. Now set up a Cloud9 development environment, which will automatically create an EC2 instance. The easiest way to find the Cloud9 AWS service is to just type `cloud9` into the search bar at the top of your Console Home. Or, you can find the Cloud9 service under the "Services" button at the top, and in the "Developer Tools" category.
+3. Now set up a Cloud9 development environment, which will automatically create an EC2 instance. The easiest way to find the Cloud9 AWS service is to just type `cloud9` into the search bar at the top of your Console Home. Or, you can find the Cloud9 service under the "Services" button at the top, and in the "Developer Tools" category. Or, just click here: [AWS Cloud9 Environments](https://console.aws.amazon.com/cloud9/)
  * Now you should be in the AWS Cloud9 main page. Click "Create Environment".
  * Name it something with an optional description. You can use "Flood Simulator" as the name if you like. Click "Next Step".
  * Allow it to create an EC2 instance, but please choose the "t3.small" size. Although it doesn't state that it is covered in the free-tier, you will not be charged as long as this environment is temporary. 
@@ -89,7 +89,53 @@ This optional installation process will provide a fully functional Cloud9 enviro
  * Allow the other defaults and click "Next Step". 
  * On the next page, simply review your request and then click "Create Environment". 
  * After a few minutes, your new Cloud9 IDE should be created, and you'll begin with a bash terminal and a simple directory structure! 
-4. 
+4. Now we'll prepare Ubuntu and Python before installing and running the script. 
+ * Firstly, udpate Ubuntu with any of the latest packages with these three commands, one at a time: 
+```
+sudo -su root
+apt update && apt upgrade -y
+exit
+```
+ * Update the Python package installer (PIP). Note: You should no longer be the root user, so make sure you use the "exit" above: 
+```
+pip install --upgrade pip
+```
+* Update important Ubuntu libraries with these two commands. After each command, you will need to confirm with an *uppercase* "Y": 
+```
+sudo apt-get install build-essential checkinstall
+sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev \
+    libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
+```
+5. Now we'll check out this repository. 
+ * Use the default git to check out the repository's current release: 
+```
+git clone https://github.com/culveyhouse/topography-flood-sim.git
+cd topography-flood-sim/
+```
+6. Create a Python virtual environment within that new repo directory and activate it:
+``` 
+python3 -m venv env
+source ./env/bin/activate
+```
+ * Note: You'll need to use the `python3` command for all Python requests in this particular environment, as Amazon provides both Python 2 & 3 in this installation. This repo will not work in Python 2.x. 
+
+7. Now, switch to the `release-0.1` branch: 
+```
+git checkout release-0.1
+```
+ * Your command prompt should now look decorated like: 
+```
+(env) ubuntu:~/environment/topography-flood-sim (release-0.1) $ 
+```
+
+8. You may now run the simulation as per the instructions in [How To Use This Project](#how-to-use-this-project). You may try the default simulation:
+```
+python3 topographyfloodsim.py
+```
+ * Or you may customize it: 
+```
+python3 topographyfloodsim.py -l 8 -w 8 -mh 10
+```
 
 ## More Information
 
