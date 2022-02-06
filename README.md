@@ -13,7 +13,7 @@
 
 ## Synopsis
 
-This simulator built in Python applies water to a 3D topographical grid, then computes the total volume of flood water that pools on that grid. Typically the input is a "chessboard" of height values, or in other words an 8x8 2D array of integers up to a height of 10. However, the simulator has been successfully tested with 2D arrays as large as 200x200 with height values of up to 200. The project was built using Python 3.8.12, however it runs on Python versions as early as 3.6.9.
+This simulator applies water to a 3D topographical grid, then computes the total volume of flood water that pools on that grid. Typically the input is a "chessboard" of height values, or in other words an 8x8 2D array of integers up to a height of 10. However, the simulator has been successfully tested with 2D arrays as large as 200x200 with height values of up to 200. The project was built using Python 3.8.12, however it runs on Python versions as early as 3.6.9.
 
 The simulator was assigned to me as a project by the Cavnue development team, and the original request was quite simple: "Imagine a chess board where each square has a height, forming a topology. Water is poured over the entire board and collects in 'valleys'.  What volume of water does a given board hold?" This simulation solves this challenge and works with 100% accuracy. 
 
@@ -34,7 +34,7 @@ To run and experiment with the simulation, please start with [How To Use This Pr
 ```
 python3 topographyfloodsim.py
 ```
-  * This run will report the total flooding (in cubes) of the chessboard, as well as the maximum water height detected. 
+  * This method will report the total flooding of the chessboard (in number of cubes), as well as the maximum water height detected. 
 
 2. You may change the default chessboard to any topography of your choosing by modifying the chessboard 2D array at the end of the [topographyfloodsim.py](topographyfloodsim.py) script around line 495: 
 ```
@@ -64,7 +64,7 @@ python3 tests.py
 
 ## Express Installation of Python Environment
 
-1. On a recent Ubuntu version (preferably 18.04 or more recent), install Python 3.8.12 [Python 3.8.12](https://www.python.org/downloads/release/python-3812/) on your environment. 
+1. On a recent Ubuntu version (preferably 18.04 or more recent), install [Python 3.8.12](https://www.python.org/downloads/release/python-3812/) on your environment. 
 2. Check out this code using the current release branch.
 3. Create a virtual Python environment inside that project folder and activate it. 
 4. Although this simulator uses only the Python standard libraries, it is a common step to run the requirements_dev.txt file to update the pip==21.1.1 and
@@ -142,8 +142,8 @@ python3 topographyfloodsim.py -l 8 -w 8 -mh 10
 ## More Information
 
 1. To write this simulation, I immediately noticed I would need to build a pathfinding algorithm. Several pathfinding examples exist and are widely used, and at first I attempted a recursive pathfinder. However, I abandoned this as it was too resource-heavy and very time-consuming to troubleshoot and debug. I also wanted this simulator to function perfectly on a lightweight server with low memory. I settled on a simpler while loop with a 4-directonal pathfinder, similar to [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm). 
-2. I decide to use an OOP system to represent the 3D cubes as objects, so that each object may store its own information, namely its content (0=board, 1=air, 2=water). By using this structure, the simulation may be expanded in the future with more materials, behaviors, etc.
-3. The simulation functions contrary to the physics of pouring water over a topology, but rather it functions by flooding the topology upwards, resulting in the same end behavior. Water drains or pools based on the topology, and uses pathfinding to attempt to drain. Water will typically pool in multiple areas at multiple heights, and I included a few visuals here to depict the tests that are availalbe in `tests.py`:
+2. I decided to use an OOP system to represent the 3D cubes as objects, so that each object may store its own information, namely its content (0=board, 1=air, 2=water). By using this structure, the simulation may be expanded in the future with more materials, behaviors, etc.
+3. The simulation functions contrary to the physics of pouring water over a topology, but rather it simulates flooding the topology upwards, producing the same end result. Water drains or pools based on the topology and uses pathfinding to attempt drainage. Water will typically pool in multiple areas at multiple heights, and I included a few visuals here to depict the tests that are availalbe in `tests.py`:
 
    a. The first test is a small control grid which fully drains with a total flooding of zero (0) cubes: 
    
@@ -161,13 +161,13 @@ python3 topographyfloodsim.py -l 8 -w 8 -mh 10
    
  <img src="https://user-images.githubusercontent.com/14173083/152660187-77ad1640-6998-4cdc-85c8-b33af1e9df35.png" width="300" /> 
 
-4. Possible future features: Because of the object-oriented approach I used in the 3D grid, this simulation may be extended to support other materials, including sand, mud, concrete, lava, and others. Additionally, it can support erosion physics, and can support cavitation (pathfinding through caves) which could also account for air pockets in the cave systems. 
+4. Potential upcoming features: Because of the object-oriented approach I used in the 3D grid, this simulation may be extended to support other materials, including sand, mud, concrete, lava, and others. Additionally, it can support erosion, pothole, and sinkhole physics, and can support cavitation (pathfinding through caves) which could also calculate air pockets in the cave systems. It would also be very curious to run several thousand randomized simulations with different X, Y, Z grid sizes, keep track of each result, then report on the mean & average pooling for each grid size.
 
 ## Troubleshooting and Known Errors 
 
 1. There are currently no known errors on Python versions of 3.6.9 or greater, when simulating an 8x8 chessboard topography. 
-2. Grids as large as 200x200x200 execute fine, albeit slower, so be patient if you're attempting these sizes. 
-3. However, a grid of 230x230x230 ran out of memory on a Cloud9 "small" server and froze the EC2 server, so if you are using that same environment, avoid grids over 200x200x200.
+2. Grids as large as 200x200x200 execute fine, albeit slower (8,000,000 Python objects), so be patient if you're attempting these sizes. 
+3. However, a grid of 230x230x230 ran out of memory on a Cloud9 "small" server and froze the EC2 server with over 12.1 million Python objects, so if you are using that same environment, avoid grids over 200x200x200.
 
 ## Authors and Acknowledgments
 
